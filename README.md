@@ -80,4 +80,15 @@ blocks_edit_QA_Agentic_Solution/
 
 ---
 
+## 📬 Contact
+
+For questions about this QA framework, reach out to:
+
+| | |
+|-|-|
+| **Email** | [rlsmall@cox.net](mailto:rlsmall@cox.net) |
+| **LinkedIn** | [bob-small-194a077](https://www.linkedin.com/in/bob-small-194a077/) |
+
+---
+
 *Generated as part of the Phoenix Startup QA Agentic Solutions project.*
