@@ -1,23 +1,26 @@
-﻿{
+{
     "name":  "Blocks Edit",
     "url":  "https://blocksedit.com",
-    "description":  "",
-    "industry":  "",
+    "description":  "A visual content editing platform that makes any HTML design editable without disrupting the code.",
+    "industry":  "B2B SaaS - Content Management / Email Marketing",
     "hasContactForm":  true,
     "expectedNavItems":  [
-
-                         ],
+        "Features",
+        "Integrations",
+        "Pricing",
+        "Get Started"
+    ],
     "viewports":  [
-                      "desktop",
-                      "mobile",
-                      "tablet"
-                  ],
+        "desktop",
+        "mobile",
+        "tablet"
+    ],
     "skipVisual":  false,
     "skipForms":  false,
     "auth":  {
-                 "required":  false,
-                 "loginUrl":  "",
-                 "username":  "",
-                 "password":  ""
-             }
+        "required":  false,
+        "loginUrl":  "",
+        "username":  "",
+        "password":  ""
+    }
 }
