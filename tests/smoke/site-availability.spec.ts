@@ -61,7 +61,7 @@ test.describe('Site Availability @smoke', () => {
       consoleErrors.push(`[pageerror] ${err.message}`);
     });
 
-    await page.goto(siteConfig.url, { waitUntil: 'networkidle' });
+    await page.goto(siteConfig.url, { waitUntil: 'load' });
 
     const criticalErrors = consoleErrors.filter((err) => {
       const lower = err.toLowerCase();
@@ -98,9 +98,8 @@ test.describe('Site Availability @smoke', () => {
     expect(title.trim(), 'Page <title> should not be empty').toBeTruthy();
     expect(title.trim().length, 'Page title should be meaningful (>3 chars)').toBeGreaterThan(3);
 
-    const metaDescription = await page
-      .locator('meta[name="description"]')
-      .getAttribute('content');
+    const metaTag = page.locator('meta[name="description"]').first();
+    const metaDescription = (await metaTag.count()) > 0 ? await metaTag.getAttribute('content') : null;
 
     if (!metaDescription || metaDescription.trim().length === 0) {
       console.warn(
