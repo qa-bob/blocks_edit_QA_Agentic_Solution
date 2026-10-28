@@ -24,10 +24,7 @@ test.describe('Functional Boundaries — Negative @negative', () => {
       .filter({ hasNotText: /collaborate/i })
       .first();
 
-    if (await freePlanSection.count() === 0) {
-      console.warn('[negative] Could not isolate free plan section — skipping price isolation check.');
-      return;
-    }
+    test.skip(await freePlanSection.count() === 0, 'Could not isolate free plan section');
 
     const sectionText = await freePlanSection.textContent() ?? '';
 
@@ -91,10 +88,7 @@ test.describe('Functional Boundaries — Negative @negative', () => {
   test('sign-in CTA does NOT link to a page on the marketing site @negative', async ({ homePage, siteConfig }) => {
     const signInLink = homePage.page.getByRole('link', { name: /sign in/i }).first();
 
-    if (await signInLink.count() === 0) {
-      console.warn('[negative] No "Sign in" link found — skipping.');
-      return;
-    }
+    test.skip(await signInLink.count() === 0, 'No "Sign in" link found');
 
     const href = await signInLink.getAttribute('href') ?? '';
     const marketingOrigin = new URL(siteConfig.url).origin;
@@ -119,10 +113,7 @@ test.describe('Functional Boundaries — Negative @negative', () => {
       .filter({ hasText: /coming soon/i });
 
     const count = await comingSoonContainers.count();
-    if (count === 0) {
-      console.warn('[negative] No "Coming soon" section found — skipping link check.');
-      return;
-    }
+    test.skip(count === 0, 'No "Coming soon" section found');
 
     // Within coming-soon sections, there should be no anchor links to actual pages
     for (let i = 0; i < count; i++) {
@@ -197,10 +188,7 @@ test.describe('Functional Boundaries — Negative @negative', () => {
     homePage,
   }) => {
     const footer = homePage.page.locator('footer').first();
-    if (await footer.count() === 0) {
-      console.warn('[negative] No footer found — skipping.');
-      return;
-    }
+    test.skip(await footer.count() === 0, 'No footer found');
 
     const allLinks = await footer.locator('a[href]').all();
     for (const link of allLinks) {

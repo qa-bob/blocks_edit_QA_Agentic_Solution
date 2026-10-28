@@ -70,10 +70,7 @@ test.describe('Homepage Functional @functional', () => {
       .getByRole('link', { name: /sign in/i })
       .first();
 
-    if (await signInLink.count() === 0) {
-      console.warn('[functional] No "Sign in" link found on homepage — skipping.');
-      return;
-    }
+    test.skip(await signInLink.count() === 0, 'No "Sign in" link found on homepage');
 
     const href = await signInLink.getAttribute('href');
     expect(href, 'Sign in link should have an href').not.toBeNull();
@@ -86,10 +83,7 @@ test.describe('Homepage Functional @functional', () => {
   test('footer contains essential navigation links @functional', async ({ homePage }) => {
     const footer = homePage.page.locator('footer').first();
 
-    if (await footer.count() === 0) {
-      console.warn('[functional] No <footer> found — skipping footer link check.');
-      return;
-    }
+    test.skip(await footer.count() === 0, 'No <footer> found');
 
     const footerLinks = await footer.locator('a[href]').all();
     expect(

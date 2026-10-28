@@ -38,7 +38,7 @@ test.describe('Form Validation — Negative @negative', () => {
 
     await emailField.fill('notanemail');
 
-    const isValid = await emailField.evaluate<boolean>((el) => {
+    const isValid = await emailField.evaluate((el) => {
       return (el as HTMLInputElement).validity?.valid ?? true;
     });
 
@@ -66,7 +66,7 @@ test.describe('Form Validation — Negative @negative', () => {
 
     await emailField.fill('user@');
 
-    const isValid = await emailField.evaluate<boolean>((el) => {
+    const isValid = await emailField.evaluate((el) => {
       return (el as HTMLInputElement).validity?.valid ?? true;
     });
 
@@ -96,7 +96,7 @@ test.describe('Form Validation — Negative @negative', () => {
     await emailField.fill('');
 
     const isRequired = await emailField.getAttribute('required');
-    const valueMissing = await emailField.evaluate<boolean>((el) => {
+    const valueMissing = await emailField.evaluate((el) => {
       return (el as HTMLInputElement).validity?.valueMissing ?? false;
     });
 
@@ -127,14 +127,11 @@ test.describe('Form Validation — Negative @negative', () => {
     }
 
     const isRequired = await nameField.getAttribute('required');
-    if (isRequired === null) {
-      console.warn('[negative] Name field is not marked required — skipping valueMissing check.');
-      return;
-    }
+    test.skip(isRequired === null, 'Name field is not marked required');
 
     await nameField.fill('');
 
-    const valueMissing = await nameField.evaluate<boolean>((el) => {
+    const valueMissing = await nameField.evaluate((el) => {
       return (el as HTMLInputElement).validity?.valueMissing ?? false;
     });
 
@@ -159,14 +156,11 @@ test.describe('Form Validation — Negative @negative', () => {
     }
 
     const isRequired = await textarea.getAttribute('required');
-    if (isRequired === null) {
-      console.warn('[negative] Textarea is not marked required — skipping.');
-      return;
-    }
+    test.skip(isRequired === null, 'Textarea is not marked required');
 
     await textarea.fill('');
 
-    const valueMissing = await textarea.evaluate<boolean>((el) => {
+    const valueMissing = await textarea.evaluate((el) => {
       return (el as HTMLTextAreaElement).validity?.valueMissing ?? false;
     });
 
@@ -188,9 +182,17 @@ test.describe('Form Validation — Negative @negative', () => {
       return;
     }
 
-    let postRequestFired = false;
-    page.on('request', (req) => {
-      if (req.method() === 'POST') postRequestFired = true;
+    // Block every non-GET request so nothing can actually be submitted, even
+    // if the form posts via fetch/XHR or validation is missing.
+    const submissionAttempts: string[] = [];
+    await page.route('**/*', async (route) => {
+      const req = route.request();
+      if (req.method() !== 'GET' && req.method() !== 'HEAD') {
+        submissionAttempts.push(`${req.method()} ${req.url()}`);
+        await route.abort();
+        return;
+      }
+      await route.continue();
     });
 
     const submitBtn = form
@@ -209,9 +211,9 @@ test.describe('Form Validation — Negative @negative', () => {
     await page.locator('body').waitFor({ state: 'visible' });
 
     expect(
-      postRequestFired,
+      submissionAttempts.filter((a) => a.startsWith('POST')),
       'A POST request should NOT fire when all required fields are empty'
-    ).toBeFalsy();
+    ).toHaveLength(0);
 
     expect(
       page.url(),

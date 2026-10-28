@@ -73,10 +73,7 @@ test.describe('Features Page @functional', () => {
 
   test('features page CTA links to signup @functional', async ({ featuresPage }) => {
     const count = await featuresPage.ctaLink.count();
-    if (count === 0) {
-      console.warn('[functional] No CTA link found on features page — skipping href check.');
-      return;
-    }
+    test.skip(count === 0, 'No CTA link found on features page');
     const href = await featuresPage.ctaLink.getAttribute('href');
     expect(href, 'CTA href should not be null').not.toBeNull();
     // Accept /pricing/ as a valid CTA destination — some viewports route via pricing before signup

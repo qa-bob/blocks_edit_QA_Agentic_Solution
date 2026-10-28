@@ -4,9 +4,13 @@
  * Visual regression tests — compare screenshots against stored baselines.
  * Run `npm run baseline` to capture new baselines after intentional design changes.
  *
+ * Each test runs only in the Playwright project whose viewport it targets, and
+ * is skipped (not failed) until a baseline has been captured for it.
+ *
  * Tag: @visual
  */
 
+import * as fs from 'fs';
 import { test, expect } from '@fixtures/site.fixture';
 import { dismissCookieBanner } from '@utils/visual-helper';
 
@@ -27,9 +31,9 @@ const VISUAL_PAGES = [
 ] as const;
 
 const VIEWPORTS = [
-  { label: 'desktop', width: 1280, height: 720 },
-  { label: 'mobile', width: 390, height: 844 },
-  { label: 'tablet', width: 768, height: 1024 },
+  { label: 'desktop', project: 'chromium-desktop', width: 1280, height: 720 },
+  { label: 'mobile', project: 'mobile-chrome', width: 390, height: 844 },
+  { label: 'tablet', project: 'tablet', width: 768, height: 1024 },
 ] as const;
 
 test.describe('Visual Regression @visual', () => {
@@ -41,7 +45,18 @@ test.describe('Visual Regression @visual', () => {
 
   for (const vp of VIEWPORTS) {
     for (const pg of VISUAL_PAGES) {
-      test(`${pg.name} visual regression - ${vp.label} @visual`, async ({ page, siteConfig }) => {
+      test(`${pg.name} visual regression - ${vp.label} @visual`, async ({ page, siteConfig }, testInfo) => {
+        test.skip(testInfo.project.name !== vp.project, `Runs only in the "${vp.project}" project`);
+
+        // Only `--update-snapshots` (all/changed) should create a missing baseline
+        const snapshot = `${pg.name}-${vp.label}.png`;
+        const isUpdating = ['all', 'changed'].includes(testInfo.config.updateSnapshots);
+        const baselinePath = testInfo.snapshotPath(snapshot, { kind: 'screenshot' });
+        test.skip(
+          !isUpdating && !fs.existsSync(baselinePath),
+          `No baseline at ${baselinePath} — run "npm run baseline" to capture one`
+        );
+
         await page.setViewportSize({ width: vp.width, height: vp.height });
 
         // Freeze animations BEFORE navigation so they never start looping.
@@ -101,7 +116,7 @@ test.describe('Visual Regression @visual', () => {
         `);
 
         const url = siteConfig.url.replace(/\/$/, '') + pg.path;
-        await page.goto(url, { waitUntil: 'networkidle' });
+        await page.goto(url, { waitUntil: 'load' });
 
         await dismissCookieBanner(page);
 
@@ -143,7 +158,7 @@ test.describe('Visual Regression @visual', () => {
           });
         });
 
-        await expect(page).toHaveScreenshot(`${pg.name}-${vp.label}.png`, {
+        await expect(page).toHaveScreenshot(snapshot, {
           ...SCREENSHOT_OPTIONS,
         });
       });

@@ -67,7 +67,7 @@ test.describe('Content Integrity — Negative @negative', () => {
   for (const pg of PAGES_TO_CHECK) {
     test(`"${pg.name}" page has no broken images @negative`, async ({ page, siteConfig }) => {
       const url = siteConfig.url.replace(/\/$/, '') + pg.path;
-      await page.goto(url, { waitUntil: 'networkidle' });
+      await page.goto(url, { waitUntil: 'load' });
 
       const brokenImages = await page.evaluate<string[]>(() => {
         return Array.from(document.querySelectorAll('img'))
